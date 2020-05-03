@@ -2,9 +2,10 @@ ScTimelinePlotter {
 	var <>v;
 	var <>lane_margin_x;
 	var <>lane_margin_y;
-	var <>text_width;
+	var <>instrument_name_width;
 	var <>time_grid;
 	var <>time_grid_color;
+	var <>time_grid_string_color;
 	var <>lane_grid;
 	var <>lane_grid_color;
 	var <>alpha;
@@ -17,9 +18,10 @@ ScTimelinePlotter {
 	init {
 		this.lane_margin_x = 1;
 		this.lane_margin_y = 3;
-		this.text_width = 80;
+		this.instrument_name_width = 80;
 		this.time_grid = nil;
 		this.time_grid_color = Color.gray;
+		this.time_grid_string_color = Color.black;
 		this.lane_grid = 1;
 		this.lane_grid_color = Color.gray;
 		this.alpha = 0.5;
@@ -33,7 +35,7 @@ ScTimelinePlotter {
 			var no_of_lines = (time_span / this.time_grid).round(1).asInteger;
 			no_of_lines.do({
 				| idx |
-				var x = (idx*this.time_grid).linlin(0, time_span, this.text_width, totalwidth);
+				var x = (idx*this.time_grid).linlin(0, time_span, this.instrument_name_width, totalwidth);
 				var y1 = 0;
 				var y2 = totalheight;
 				Pen.alpha_(1.0);
@@ -42,8 +44,7 @@ ScTimelinePlotter {
 				Pen.fillStroke;
 
 				if (this.draw_time_strings) {
-					Pen.strokeColor_(this.time_grid_color);
-					Pen.fillColor_(this.time_grid_color);
+					Pen.fillColor_(this.time_grid_string_color);
 					Pen.stringAtPoint((idx*this.time_grid).asString, (x+3)@(y2-18));
 					Pen.fillStroke;
 				};
@@ -57,7 +58,7 @@ ScTimelinePlotter {
 			var no_of_lines = no_of_bins + 1;
 			no_of_lines.do({
 				|idx|
-				var x1 = 0;
+				var x1 = this.instrument_name_width;
 				var x2 = totalwidth;
 				var y = idx.linlin(0, no_of_bins, 0, totalheight);
 				Pen.alpha_(1.0);
@@ -76,7 +77,7 @@ ScTimelinePlotter {
 			var bin = bin_to_idx[el[\name]];
 			var binheight = totalheight / no_of_bins;
 			var upper = bin.linlin(0, no_of_bins, 0, totalheight);
-			var left = el[\start].linlin(0, time_span, this.text_width, totalwidth);
+			var left = el[\start].linlin(0, time_span, this.instrument_name_width, totalwidth);
 			var lower = (bin+1).linlin(0, no_of_bins, 0, totalheight);
 			var right = 0;
 			var text = el[\name];
@@ -84,9 +85,9 @@ ScTimelinePlotter {
 			var color = nil;
 
 			if ((el[\type] == \beat) || (el[\type] == \time)) {
-				right = el[\stop].linlin(0, time_span, this.text_width, totalwidth);
+				right = el[\stop].linlin(0, time_span, this.instrument_name_width, totalwidth);
 			} {
-				right = el[\start].linlin(0, time_span, this.text_width, totalwidth) + 30;
+				right = el[\start].linlin(0, time_span, this.instrument_name_width, totalwidth) + 30;
 			};
 
 			if (el[\color].notNil) {
@@ -100,12 +101,12 @@ ScTimelinePlotter {
 			// draw track label if needed
 			if (txts_drawn.includes(text).not) {
 				txts_drawn = txts_drawn.add(text);
-				Pen.stringCenteredIn(text.asString, Rect(0, upper, this.text_width, lower-upper));
+				Pen.stringCenteredIn(text.asString, Rect(0, upper, this.instrument_name_width, lower-upper));
 				Pen.fillStroke;
 			};
 
 			// draw track
-			block = Rect(left + lane_margin_x, upper + lane_margin_y, right - left - (2*lane_margin_x), lower - upper - lane_margin_y);
+			block = Rect(left + lane_margin_x, upper + lane_margin_y, right - left - (2*lane_margin_x), lower - upper - (2*lane_margin_y));
 			if (el[\type] == \number) {
 				Pen.fillColor_(color);
 				Pen.addOval(block);
