@@ -8,6 +8,7 @@ ScTimelinePlotter {
 	var <>lane_grid;
 	var <>lane_grid_color;
 	var <>alpha;
+	var <>draw_time_strings;
 
 	*new {
 		^super.new.init();
@@ -17,11 +18,12 @@ ScTimelinePlotter {
 		this.lane_margin_x = 1;
 		this.lane_margin_y = 3;
 		this.text_width = 80;
-		this.time_grid = 1;
+		this.time_grid = nil;
 		this.time_grid_color = Color.gray;
 		this.lane_grid = 1;
 		this.lane_grid_color = Color.gray;
 		this.alpha = 0.5;
+		this.draw_time_strings = true;
 	}
 
 	drawTimeGrid {
@@ -38,6 +40,13 @@ ScTimelinePlotter {
 				Pen.strokeColor_(this.time_grid_color);
 				Pen.line(x@y1, x@y2);
 				Pen.fillStroke;
+
+				if (this.draw_time_strings) {
+					Pen.strokeColor_(this.time_grid_color);
+					Pen.fillColor_(this.time_grid_color);
+					Pen.stringAtPoint((idx*this.time_grid).asString, (x+3)@(y2-18));
+					Pen.fillStroke;
+				};
 			});
 		};
 	}
@@ -96,7 +105,7 @@ ScTimelinePlotter {
 				};
 
 				// draw track
-				block = Rect(left + lane_margin_x, upper + lane_margin_y, right - left - lane_margin_x, lower - upper - lane_margin_y);
+				block = Rect(left, upper + lane_margin_y, right - left - lane_margin_x, lower - upper - lane_margin_y);
 				if (el[\type] == \number) {
 					Pen.fillColor_(color);
 					Pen.addOval(block);
@@ -114,6 +123,43 @@ ScTimelinePlotter {
 			});
 	}
 
+	analyzeBins {
+		| internalplotlist |
+		var time_span = 0;
+		var bins = Set[];
+		var bin_to_idx = ();
+		var bincnt = 0;
+		internalplotlist.do({
+			| el, idx |
+			if (bins.includes(el[\name]).not) {
+				bins = bins.add(el[\name]);
+				bin_to_idx[el[\name]] = bincnt;
+				bincnt = bincnt + 1;
+				if ((el[\type] == \beat) || (el[\type] == \time)) {
+					if (el[\stop] > time_span) {
+						time_span = el[\stop];
+					}
+				} {
+					if (el[\start] > time_span) {
+						time_span = el[\start];
+					}
+				};
+				time_span = time_span + 1;
+			};
+		});
+		if (this.time_grid.isNil) {
+			this.time_grid = (time_span/10.0).asInteger;
+			if (time_span > 10) {
+				this.time_grid = this.time_grid.round(5);
+			} {
+				if (time_span > 1) {
+					this.time_grid = this.time_grid.round(1);
+				}
+			};
+		};
+		^(\bintoidx : bin_to_idx, \span: time_span);
+	}
+
 	asView {
 		| internalplotlist |
 		this.v = UserView().background_(Color.white);
@@ -122,40 +168,16 @@ ScTimelinePlotter {
 			| uview |
 			var totalwidth = uview.bounds.width;
 			var totalheight = uview.bounds.height;
-			var bins = Set[];
-			var bins_sorted = [];
-			var no_of_bins;
-			var time_span = 0;
-			var bin_to_idx = ();
-			var bincnt = 0;
-			internalplotlist.do({
-				| el, idx |
-				if (bins.includes(el[\name]).not) {
-					bins = bins.add(el[\name]);
-					bins_sorted = bins_sorted.add(el[\name]);
-					bin_to_idx[el[\name]] = bincnt;
-					bincnt = bincnt + 1;
-					if ((el[\type] == \beat) || (el[\type] == \time)) {
-						if (el[\stop] > time_span) {
-							time_span = el[\stop];
-						}
-					} {
-						if (el[\start] > time_span) {
-							time_span = el[\start];
-						}
-					};
-					time_span = time_span + 0.5;
-				};
-			});
-			no_of_bins = bins_sorted.size();
-
+			var binanalysis = this.analyzeBins(internalplotlist);
+			var bin_to_idx = binanalysis[\bintoidx];
+			var time_span = binanalysis[\span];
+			var no_of_bins = bin_to_idx.size();
 			if (no_of_bins == 0) {
 				^nil;
 			};
-
 			this.drawTracksAndLabels(internalplotlist, totalwidth, totalheight, bin_to_idx, time_span, no_of_bins);
 			this.drawTimeGrid(time_span, totalwidth, totalheight);
-			this.drawLaneGrid(no_of_bins, totalwidth, totalheight);			// overlay lane grid if needed
+			this.drawLaneGrid(no_of_bins, totalwidth, totalheight);
 
 		});
 		^this.v;
