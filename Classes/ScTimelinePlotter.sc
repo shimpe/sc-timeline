@@ -30,10 +30,10 @@ ScTimelinePlotter {
 		| time_span, totalwidth, totalheight |
 		// overlay time grid if needed
 		if (this.time_grid.notNil) {
-			var no_of_lines = (time_span / this.time_grid).asInteger;
+			var no_of_lines = (time_span / this.time_grid).round(1).asInteger;
 			no_of_lines.do({
 				| idx |
-				var x = idx.linlin(0, no_of_lines, this.text_width, totalwidth);
+				var x = (idx*this.time_grid).linlin(0, time_span, this.text_width, totalwidth);
 				var y1 = 0;
 				var y2 = totalheight;
 				Pen.alpha_(1.0);
@@ -72,55 +72,55 @@ ScTimelinePlotter {
 		| internalplotlist, totalwidth, totalheight, bin_to_idx, time_span, no_of_bins |
 		var txts_drawn = Set[];
 		internalplotlist.do({
-				| el |
-				var bin = bin_to_idx[el[\name]];
-				var binheight = totalheight / no_of_bins;
-				var upper = bin.linlin(0, no_of_bins, 0, totalheight);
-				var left = el[\start].linlin(0, time_span, this.text_width, totalwidth);
-				var lower = (bin+1).linlin(0, no_of_bins, 0, totalheight);
-				var right = 0;
-				var text = el[\name];
-				var block = nil;
-				var color = nil;
+			| el |
+			var bin = bin_to_idx[el[\name]];
+			var binheight = totalheight / no_of_bins;
+			var upper = bin.linlin(0, no_of_bins, 0, totalheight);
+			var left = el[\start].linlin(0, time_span, this.text_width, totalwidth);
+			var lower = (bin+1).linlin(0, no_of_bins, 0, totalheight);
+			var right = 0;
+			var text = el[\name];
+			var block = nil;
+			var color = nil;
 
-				if ((el[\type] == \beat) || (el[\type] == \time)) {
-					right = el[\stop].linlin(0, time_span, this.text_width, totalwidth);
-				} {
-					right = el[\start].linlin(0, time_span, this.text_width, totalwidth) + 30;
-				};
+			if ((el[\type] == \beat) || (el[\type] == \time)) {
+				right = el[\stop].linlin(0, time_span, this.text_width, totalwidth);
+			} {
+				right = el[\start].linlin(0, time_span, this.text_width, totalwidth) + 30;
+			};
 
-				if (el[\color].notNil) {
-					color = el[\color];
-				} {
-					color = Color.blue;
-				};
+			if (el[\color].notNil) {
+				color = el[\color];
+			} {
+				color = Color.blue;
+			};
+			Pen.fillColor_(color);
+			Pen.alpha_(1.0);
+
+			// draw track label if needed
+			if (txts_drawn.includes(text).not) {
+				txts_drawn = txts_drawn.add(text);
+				Pen.stringCenteredIn(text.asString, Rect(0, upper, this.text_width, lower-upper));
+				Pen.fillStroke;
+			};
+
+			// draw track
+			block = Rect(left + lane_margin_x, upper + lane_margin_y, right - left - (2*lane_margin_x), lower - upper - lane_margin_y);
+			if (el[\type] == \number) {
 				Pen.fillColor_(color);
+				Pen.addOval(block);
+				Pen.alpha_(this.alpha);
+				Pen.fillStroke;
+				Pen.fillColor_(Color.white);
 				Pen.alpha_(1.0);
-
-				// draw track label if needed
-				if (txts_drawn.includes(text).not) {
-					txts_drawn = txts_drawn.add(text);
-					Pen.stringCenteredIn(text.asString, Rect(0, upper, this.text_width, lower-upper));
-					Pen.fillStroke;
-				};
-
-				// draw track
-				block = Rect(left, upper + lane_margin_y, right - left - lane_margin_x, lower - upper - lane_margin_y);
-				if (el[\type] == \number) {
-					Pen.fillColor_(color);
-					Pen.addOval(block);
-					Pen.alpha_(this.alpha);
-					Pen.fillStroke;
-					Pen.fillColor_(Color.white);
-					Pen.alpha_(1.0);
-					Pen.stringCenteredIn(el[\stop].asString, block);
-					Pen.fillStroke;
-				} {
-					Pen.alpha_(this.alpha);
-					Pen.fillRect(block);
-					Pen.fillStroke;
-				};
-			});
+				Pen.stringCenteredIn(el[\stop].asString, block);
+				Pen.fillStroke;
+			} {
+				Pen.alpha_(this.alpha);
+				Pen.fillRect(block);
+				Pen.fillStroke;
+			};
+		});
 	}
 
 	analyzeBins {
