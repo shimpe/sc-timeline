@@ -101,6 +101,12 @@ ScTimeline {
 		^this.plotter.asView(this.internalplotlist);
 	}
 
+	plot {
+		var w = Window.new(bounds:Rect(200,200,1200,300));
+		w.layout_(VLayout(this.asView));
+		w.front;
+	}
+
 	prInternalnewcounter {
 		var cnt = this.internalcounter;
 		this.internalcounter = this.internalcounter + 1;
