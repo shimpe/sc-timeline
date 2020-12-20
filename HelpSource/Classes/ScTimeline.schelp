@@ -1,7 +1,7 @@
 TITLE:: ScTimeline
 summary:: simple timeline for supercollider patterns
-categories:: Undocumented classes
-related:: Classes/SomeRelatedClass, Reference/SomeRelatedStuff, etc.
+categories:: Pattern related classes
+related:: Classes/Pbind
 
 DESCRIPTION::
 simple timeline for supercollider patterns
@@ -9,38 +9,210 @@ simple timeline for supercollider patterns
 CLASSMETHODS::
 
 METHOD:: new
-(describe method here)
+create new ScTimeLine instance
 
-ARGUMENT:: arga
-(describe argument here)
-
-ARGUMENT:: argb
-(describe argument here)
-
-ARGUMENT:: argc
-(describe argument here)
-
-returns:: (describe returnvalue here)
+returns:: an ScTimeLine instance
 
 
 INSTANCEMETHODS::
 
 METHOD:: init
-(describe method here)
+initialize ScTimeline instance with default values,
+making it ready for usage
 
-ARGUMENT:: arga
-(describe argument here)
+returns:: initialized instance of an ScTimeline
 
-ARGUMENT:: argb
-(describe argument here)
+METHOD:: asView
+returns a view suitable for embedding in a layout.
+If you just want quick display of your timeline, you can use the plot method instead
+which wich will create a new window and plot the timeline inside
 
-ARGUMENT:: argc
-(describe argument here)
+returns:: a view
 
-returns:: (describe returnvalue here)
+METHOD:: play
+plays the timeline
+
+ARGUMENT:: tempoclock
+a TempoClock to determine the tempo
+
+returns:: nil
+
+METHOD:: stop
+stops playing the timeline and clears all scheduled events
+
+returns:: nil
+
+METHOD:: plot
+creates a window and plots the timeline.
+If you want to embed the timeline in your own ui, use the asView method instead to get
+a view that can be embedded in a layout
+
+ARGUMENT:: tempoclock
+a TempoClock to determine the tempo
+
+returns:: nil
+
+METHOD:: schedBeat
+registers patttern for playing between beat start_beat and stop_beat.
+It is your responsibility to make sure the pattern lasts long enough.
+If it lasts longer, it will be aborted at the stop_beat, but if it lives
+shorter, it will not automatically be repeated
+
+ARGUMENT:: start_beat
+first beat on which to start playing the pattern
+
+ARGUMENT:: stop_beat
+beat on which to stop playing the pattern
+
+ARGUMENT:: pattern
+the pattern (Pbind) that is to be scheduled
+
+ARGUMENT:: name
+a name for the pattern, used while plotting the timeline
+
+ARGUMENT:: color
+a color for the pattern, used while plotting the timeline
+
+returns:: nil
+
+METHOD:: schedBeat
+registers patttern for playing between beat start_beat and stop_beat.
+It is your responsibility to make sure the pattern lasts long enough.
+If it lasts longer, it will be aborted at the stop_beat, but if it lives
+shorter, it will not automatically be repeated.
+Absolute starting and stop times change with the TempoClock tempo
+
+ARGUMENT:: start_beat
+first beat on which to start playing the pattern
+
+ARGUMENT:: stop_beat
+beat on which to stop playing the pattern
+
+ARGUMENT:: pattern
+the pattern (Pbind) that is to be scheduled
+
+ARGUMENT:: name
+a name for the pattern, used while plotting the timeline
+
+ARGUMENT:: color
+a color for the pattern, used while plotting the timeline
+
+returns:: nil
+
+METHOD:: schedBeatNumber
+registers patttern for playing from beat start_beat and keeps on playing until no_of_events have been produced.
+It is your responsibility to make sure the pattern lasts long enough to generate no_of_events.
+If it lasts longer, it will be aborted at the stop_beat, but if it lives
+shorter, it will not automatically be repeated.
+Absolute starting and stop times change with the TempoClock tempo
+
+
+ARGUMENT:: start_beat
+beat on which to start playing the pattern
+
+ARGUMENT:: no_of_events
+specify how many events have to be generated before the timeline aborts the pattern
+
+ARGUMENT:: pattern
+the pattern (Pbind) that is to be scheduled
+
+ARGUMENT:: name
+a name for the pattern, used while plotting the timeline
+
+ARGUMENT:: color
+a color for the pattern, used while plotting the timeline
+
+returns:: nil
+
+METHOD:: schedTime
+registers patttern for playing, starting at absolute time delta_time since the timeline started playing, and lasting for
+absolute duration before it is aborted. Patterns registered
+with schedTime are not influenced by the TempoClock. The times
+are absolute.
+
+ARGUMENT:: delta_time
+time after start playing after which to start playing the pattern
+
+ARGUMENT:: duration
+how long to keep the pattern alive in seconds
+
+ARGUMENT:: pattern
+the pattern (Pbind) that is to be scheduled
+
+ARGUMENT:: name
+a name for the pattern, used while plotting the timeline
+
+ARGUMENT:: color
+a color for the pattern, used while plotting the timeline
+
+returns:: nil
+
+METHOD:: schedTimeNumber
+registers patttern for playing, starting at absolute time.
+delta_time since the timeline started playing, and generating no_of_events
+events before it is aborted. Patterns registered
+with schedTimeNumber are not influenced by the TempoClock. The times
+are absolute.
+
+ARGUMENT:: delta_time
+time after start playing after which to start playing the pattern
+
+ARGUMENT:: no_of_events
+specify how many events have to be generated before the timeline aborts the pattern
+
+ARGUMENT:: pattern
+the pattern (Pbind) that is to be scheduled
+
+ARGUMENT:: name
+a name for the pattern, used while plotting the timeline
+
+ARGUMENT:: color
+a color for the pattern, used while plotting the timeline
+
+returns:: nil
 
 EXAMPLES::
 
 code::
-(some example code)
+(
+var timeline = ScTimeline();
+var pianoslow = Pbind();
+var pianofast = Pbind();
+var strings = Pbind();
+var brass = Pbind();
+var percussion = Pbind();
+var newtempo = Pbind();
+var gong = Pbind();
+timeline.schedBeat(0, 60, pianoslow, "piano 1", Color.red);
+timeline.schedBeat(90, 182, pianoslow, "piano 1", Color.red);
+timeline.schedBeat(20, 182, pianofast, "piano 2", Color.red);
+timeline.schedBeat(60, 140, strings, "strings", Color.blue);
+timeline.schedBeat(90, 182, brass, "brass 1", Color.green);
+timeline.schedBeat(130, 182, brass, "brass 2", Color.green);
+timeline.schedBeat(160, 182, brass, "brass 3", Color.green);
+timeline.schedBeat(90, 182, percussion, "percussion", Color.gray);
+timeline.schedBeatNumber(176, 1, newtempo, "tempo", Color.black);
+timeline.schedBeatNumber(177, 1, newtempo, "tempo", Color.black);
+timeline.schedBeatNumber(178, 1, newtempo, "tempo", Color.black);
+timeline.schedBeatNumber(179, 1, newtempo, "tempo", Color.black);
+timeline.schedBeatNumber(180, 1, newtempo, "tempo", Color.black);
+timeline.schedBeatNumber(181, 1, newtempo, "tempo", Color.black);
+timeline.schedBeatNumber(182, 1, newtempo, "tempo", Color.black);
+timeline.schedBeatNumber(183, 1, gong, "gong", Color.magenta);
+
+// play the timeline
+timeline.play; // the Pbinds are empty, so you won't hear anything...
+
+// stop playing the timeline
+timeline.stop;
+
+// plotting: first way: just create new window with timeline
+timeline.plot;
+
+// plotting: second way: embed into your own ui
+w = Window.new(bounds:Rect(200,200,1200,300));
+w.layout_(VLayout(timeline.asView));
+w.front;
+
+)
 ::

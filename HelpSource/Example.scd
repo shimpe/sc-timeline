@@ -24,6 +24,16 @@ timeline.schedBeatNumber(181, 1, newtempo, "tempo", Color.black);
 timeline.schedBeatNumber(182, 1, newtempo, "tempo", Color.black);
 timeline.schedBeatNumber(183, 1, gong, "gong", Color.magenta);
 
+// play the timeline
+timeline.play; // the Pbinds are empty, so you won't hear anything...
+
+// stop playing the timeline
+timeline.stop;
+
+// first way: just create new window with timeline
+timeline.plot;
+
+// second way: embed into your own ui
 w = Window.new(bounds:Rect(200,200,1200,300));
 w.layout_(VLayout(timeline.asView));
 w.front;
