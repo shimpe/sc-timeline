@@ -44,6 +44,11 @@ ScTimeline {
 		^nil;
 	}
 
+	schedTimeFromTo {
+		| delta_time_start, delta_time_stop, pattern, name=nil, color=nil |
+		this.schedTime(delta_time_start, delta_time_stop - delta_time_start, pattern, name, color);
+	}
+
 	schedBeatNumber {
 		| start_beat, no_of_events, pattern, name=nil, color=nil |
 		this.internallist = this.internallist.add(Ptpar([start_beat, Pfin(no_of_events, pattern)]));
