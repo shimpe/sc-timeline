@@ -84,7 +84,9 @@ ScTimeline {
 				SystemClock.sched(el.dt, { this.internalplayers[cnt.asSymbol] = Pfin(el.dur, el.p).play(tempoclock); nil});
 			};
 		});
-		this.internalplayers[this.prInternalnewcounter.asSymbol] = Ppar(this.internallist).play(tempoclock);
+		if (this.internallist != []) {
+			this.internalplayers[this.prInternalnewcounter.asSymbol] = Ppar(this.internallist).play(tempoclock);
+		};
 		^nil;
 	}
 

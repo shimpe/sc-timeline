@@ -1,7 +1,7 @@
 (
   name: "ScTimeline",
   summary: "simple timeline for supercollider patterns",
-  version: "0.001",
+  version: "0.0.2",
   schelp: "ScTimeline.schelp",
   dependencies: ,
   license: "GNU GPL v3.0",
