@@ -95,6 +95,30 @@ ScTimeline {
 		^nil;
 	}
 
+	playAbsAfter {
+		| tempoclock, start_time |
+		if (tempoclock.isNil) {
+			tempoclock = TempoClock.default;
+		};
+		this.internalabssched.do({
+			|el|
+			var cnt = this.prInternalnewcounter;
+			var type = el.type;
+			if (el.dt >= start_time) {
+				if (type == \time) {
+					SystemClock.sched(el.dt - start_time, { this.internalplayers[cnt.asSymbol] = el.p.play(tempoclock); nil});
+					SystemClock.sched(el.dt - start_time + el.dur, { this.internalplayers[cnt.asSymbol].stop; nil});
+				} {
+					SystemClock.sched(el.dt - start_time, { this.internalplayers[cnt.asSymbol] = Pfin(el.dur, el.p).play(tempoclock); nil});
+				};
+			};
+		});
+		if (this.internallist != []) {
+			this.internalplayers[this.prInternalnewcounter.asSymbol] = Ppar(this.internallist).play(tempoclock);
+		};
+		^nil;
+	}
+
 	stop {
 		this.internalplayers.keysValuesDo({
 			| key, value |
