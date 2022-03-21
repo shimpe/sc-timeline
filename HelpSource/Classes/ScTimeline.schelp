@@ -1,175 +1,196 @@
 TITLE:: ScTimeline
-summary:: simple timeline for supercollider patterns
-categories:: Pattern related classes
-related:: Classes/Pbind
+summary:: a timeline for supercollider patterns
+categories:: Patterns
+related:: Classes/ScTimelinePlotter
 
 DESCRIPTION::
-simple timeline for supercollider patterns
+ScTimeline provides a way to schedule patterns in time. Patterns can be scheduled on beats or on absolute times.
+By wrapping Synths that play buffers in Pmono, it can also be used to algorithmically generate soundscapes.
+
+
 
 CLASSMETHODS::
 
 METHOD:: new
-create new ScTimeLine instance
+New creates a new ScTimeline
 
-returns:: an ScTimeLine instance
-
+returns:: a new ScTimeline
 
 INSTANCEMETHODS::
 
+METHOD:: internalcounter
+	an internal counter, used to track internally generated event stream players (internal usage only)
+	
+
+returns:: a unique integer
+METHOD:: internallist
+	internal list to store internally generated patterns (internal usage only)
+	
+
+returns:: a list
+METHOD:: internalabssched
+	list to store internally generated abs time scheduling information (internal usage only)
+	
+
+returns:: a list
+METHOD:: internalplayers
+	dictionary to store internally generated event stream players (internal usage only)
+	
+
+returns:: an event (dictionary)
+METHOD:: internalplotlist
+	list to store internally generated data, used to plot the timeline (internal usage only)
+	
+
+returns:: a list
+METHOD:: plotter
+	an ScTimelinePlotter object that knows how to plot the timing data as a timeline (internal usage only)
+	
+
+returns:: an ScTimelinePlotter instance
 METHOD:: init
-initialize ScTimeline instance with default values,
-making it ready for usage
+	Initializes internal data structures
+	
 
-returns:: initialized instance of an ScTimeline
-
-METHOD:: asView
-returns a view suitable for embedding in a layout.
-If you just want quick display of your timeline, you can use the plot method instead
-which wich will create a new window and plot the timeline inside
-
-returns:: a view
-
-METHOD:: play
-plays the timeline
-
-ARGUMENT:: tempoclock
-a TempoClock to determine the tempo
-
-returns:: nil
-
-METHOD:: stop
-stops playing the timeline and clears all scheduled events
-
-returns:: nil
-
-METHOD:: plot
-creates a window and plots the timeline.
-If you want to embed the timeline in your own ui, use the asView method instead to get
-a view that can be embedded in a layout
-
-ARGUMENT:: tempoclock
-a TempoClock to determine the tempo
-
-returns:: nil
+returns:: this instance of ScTimeline
 
 METHOD:: schedBeat
-registers patttern for playing between beat start_beat and stop_beat.
-It is your responsibility to make sure the pattern lasts long enough.
-If it lasts longer, it will be aborted at the stop_beat, but if it lives
-shorter, it will not automatically be repeated
+	Runs a pattern from a given start_beat to a given stop_beat. Infinitely running patterns are cut off at the stop_beat. You can specify a name and a color which will be used when plotting the timeline.
+	
 
 ARGUMENT:: start_beat
-first beat on which to start playing the pattern
+beat at which the pattern should start playing
 
 ARGUMENT:: stop_beat
-beat on which to stop playing the pattern
+beat at which the pattern should stop playing (will be cut off if needed)
 
 ARGUMENT:: pattern
-the pattern (Pbind) that is to be scheduled
+the pattern (a Pbind or Pmono-like pattern) to schedule
 
 ARGUMENT:: name
-a name for the pattern, used while plotting the timeline
+a string that will be used when plotting the timeline. All entries with the same name are plotted in the same lane.
 
 ARGUMENT:: color
-a color for the pattern, used while plotting the timeline
+a supercollider Color that will be used when plotting the timeline
 
 returns:: nil
-
-METHOD:: schedBeat
-registers patttern for playing between beat start_beat and stop_beat.
-It is your responsibility to make sure the pattern lasts long enough.
-If it lasts longer, it will be aborted at the stop_beat, but if it lives
-shorter, it will not automatically be repeated.
-Absolute starting and stop times change with the TempoClock tempo
-
-ARGUMENT:: start_beat
-first beat on which to start playing the pattern
-
-ARGUMENT:: stop_beat
-beat on which to stop playing the pattern
-
-ARGUMENT:: pattern
-the pattern (Pbind) that is to be scheduled
-
-ARGUMENT:: name
-a name for the pattern, used while plotting the timeline
-
-ARGUMENT:: color
-a color for the pattern, used while plotting the timeline
-
-returns:: nil
-
-METHOD:: schedBeatNumber
-registers patttern for playing from beat start_beat and keeps on playing until no_of_events have been produced.
-It is your responsibility to make sure the pattern lasts long enough to generate no_of_events.
-If it lasts longer, it will be aborted at the stop_beat, but if it lives
-shorter, it will not automatically be repeated.
-Absolute starting and stop times change with the TempoClock tempo
-
-
-ARGUMENT:: start_beat
-beat on which to start playing the pattern
-
-ARGUMENT:: no_of_events
-specify how many events have to be generated before the timeline aborts the pattern
-
-ARGUMENT:: pattern
-the pattern (Pbind) that is to be scheduled
-
-ARGUMENT:: name
-a name for the pattern, used while plotting the timeline
-
-ARGUMENT:: color
-a color for the pattern, used while plotting the timeline
-
-returns:: nil
-
 METHOD:: schedTime
-registers patttern for playing, starting at absolute time delta_time since the timeline started playing, and lasting for
-absolute duration before it is aborted. Patterns registered
-with schedTime are not influenced by the TempoClock. The times
-are absolute.
+	Runs a pattern from a given start_time (in seconds) for a given duration. Infinitely running patterns are cut off after duration. You can specify a name and a color which will be used when plotting the timeline.
+	
 
 ARGUMENT:: delta_time
-time after start playing after which to start playing the pattern
+time at which the pattern should be started
 
 ARGUMENT:: duration
-how long to keep the pattern alive in seconds
+duration after which the pattern should be stopped
 
 ARGUMENT:: pattern
-the pattern (Pbind) that is to be scheduled
+the pattern (a Pbind or Pmono-like pattern) to schedule
 
 ARGUMENT:: name
-a name for the pattern, used while plotting the timeline
+a string that will be used when plotting the timeline. All entries with the same name are plotted in the same lane.
 
 ARGUMENT:: color
-a color for the pattern, used while plotting the timeline
+a supercollider Color that will be used when plotting the timeline
 
 returns:: nil
+METHOD:: schedTimeFromTo
+	Runs a pattern from a given start_time (in seconds) to a given stop_time (in seconds). Infinitely running patterns are stopped after stop_time. You can specify a name and a color which will be used when plotting the timeline.
+	
 
-METHOD:: schedTimeNumber
-registers patttern for playing, starting at absolute time.
-delta_time since the timeline started playing, and generating no_of_events
-events before it is aborted. Patterns registered
-with schedTimeNumber are not influenced by the TempoClock. The times
-are absolute.
+ARGUMENT:: delta_time_start
+time at which the pattern should be started
 
-ARGUMENT:: delta_time
-time after start playing after which to start playing the pattern
+ARGUMENT:: delta_time_stop
+time at which the pattern should be stopped
+
+ARGUMENT:: pattern
+the pattern (a Pbind or Pmono-like pattern) to schedule
+
+ARGUMENT:: name
+a string that will be used when plotting the timeline. All entries with the same name are plotted in the same lane.
+
+ARGUMENT:: color
+a supercollider Color that will be used when plotting the timeline
+
+returns:: this instance of ScTimeline
+
+METHOD:: schedBeatNumber
+	Runs a pattern from a given beat until it has produced a given number of events. Longer running patterns are cut off if needed. You can specify a name and a color which will be used when plotting the timeline.
+	
+
+ARGUMENT:: start_beat
+beat at which the pattern should be started
 
 ARGUMENT:: no_of_events
-specify how many events have to be generated before the timeline aborts the pattern
+max number of events after which the pattern should be stopped
 
 ARGUMENT:: pattern
-the pattern (Pbind) that is to be scheduled
+the pattern (a Pbind or Pmono-like pattern) to schedule
 
 ARGUMENT:: name
-a name for the pattern, used while plotting the timeline
+a string that will be used when plotting the timeline. All entries with the same name are plotted in the same lane.
 
 ARGUMENT:: color
-a color for the pattern, used while plotting the timeline
+a supercollider Color that will be used when plotting the timeline
 
 returns:: nil
+METHOD:: schedTimeNumber
+	Runs a pattern from a given start_time (in seconds) until it has produced no_of_events events. Longer running patterns are cut off after producing no_of_events events. You can specify a name and a color which will be used when plotting the timeline.
+	
+
+ARGUMENT:: delta_time
+time at which the pattern should be started
+
+ARGUMENT:: no_of_events
+number of events after which the pattern should be stopped
+
+ARGUMENT:: pattern
+the pattern (a Pbind or Pmono-like pattern) to schedule
+
+ARGUMENT:: name
+a string that will be used when plotting the timeline. All entries with the same name are plotted in the same lane.
+
+ARGUMENT:: color
+a supercollider Color that will be used when plotting the timeline
+
+returns:: nil
+METHOD:: playAbsAfter
+	Plays only those patterns scheduled using times, that were scheduled after start_time. Useful to skip the beginning of a long sequence of patterns while developing longer pieces.
+	
+
+ARGUMENT:: tempoclock
+a TempoClock. If none is provided, TempoClock.default will be used.
+
+ARGUMENT:: start_time
+time to skip
+
+returns:: nil
+METHOD:: stop
+	Force stops playing the timeline.
+	
+
+returns:: nil
+METHOD:: asView
+	returns a View containing the timeline which can be embedded in a Layout.
+	
+
+returns:: a View
+METHOD:: plot
+	creates a window and embeds the timeline into it and displays it
+	
+
+returns:: a Window
+METHOD:: prInternalnewcounter
+	generates a new unique counter value. Internal usage.
+	
+
+returns:: a new integer
+METHOD:: prInternalnewplotcounter
+	generates a new unique counter symbol. Internal usage.
+	
+
+returns:: a new symbol
 
 EXAMPLES::
 
@@ -213,6 +234,6 @@ timeline.plot;
 w = Window.new(bounds:Rect(200,200,1200,300));
 w.layout_(VLayout(timeline.asView));
 w.front;
-
 )
+
 ::

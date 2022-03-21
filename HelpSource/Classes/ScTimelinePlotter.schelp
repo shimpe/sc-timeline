@@ -1,0 +1,148 @@
+TITLE:: ScTimelinePlotter
+summary:: an object to plot the contents of an ScTimeline
+categories:: Patterns
+related:: Classes/ScTimeline
+
+DESCRIPTION::
+ScTimelinePlotter provides an object to draw patterns in time.
+
+
+
+CLASSMETHODS::
+
+METHOD:: new
+New creates a new ScTimelinePlotter
+
+returns:: a new ScTimelinePlotter
+
+INSTANCEMETHODS::
+
+METHOD:: v
+	v contains a UserView. Internal usage only.
+	
+
+returns:: a UserView
+METHOD:: lane_margin_x
+	an integer indicating a small gap between adjacent patterns in a given lane. Internal usage.
+	
+
+returns:: an integer
+METHOD:: lane_margin_y
+	an integer indicating a small gap between overlapping patterns in a two adjacent lanes. Internal usage.
+	
+
+returns:: an integer
+METHOD:: instrument_name_width
+	width required to display the pattern names. Internal usage.
+	
+
+returns:: an integer
+METHOD:: time_grid
+	Time grid division.
+	
+
+returns:: an integer
+METHOD:: time_grid_color
+	Time grid color.
+	
+
+returns:: a Color
+METHOD:: time_grid_string_color
+	Time grid string color (color used to draw time values).
+	
+
+returns:: a Color
+METHOD:: lane_grid
+	Lane grid. Set to nil to not draw the lanes.
+	
+
+returns:: either something or nil
+METHOD:: lane_grid_color
+	Lane grid color.
+	
+
+returns:: a Color
+METHOD:: alpha
+	Pattern transparency. A float (0-1), where 1 is opaque and 0 is fully transparent. Default:0.5.
+	
+
+returns:: a float
+METHOD:: draw_time_strings
+	A boolean indicating if time strings should be added to the plot.
+	
+
+returns:: a boolean
+METHOD:: init
+	initialize internal data structures
+	
+
+returns:: this instance of ScTimelinePlotter
+
+METHOD:: drawTimeGrid
+	method that draws the time grid if time_grid was not set to nil
+	
+
+ARGUMENT:: time_span
+time range for which a grid must be drawn
+
+ARGUMENT:: totalwidth
+width in which the time grid must fit
+
+ARGUMENT:: totalheight
+height in which the time grid must fit
+
+returns:: this instance of ScTimelinePlotter
+
+METHOD:: drawLaneGrid
+	method that draws the lanes in which the patterns are visualized if lane_grid was not set to nil
+	
+
+ARGUMENT:: no_of_bins
+number of lanes to draw
+
+ARGUMENT:: totalwidth
+width in which the lane grid must fit
+
+ARGUMENT:: totalheight
+height in which the lane grid must fit
+
+returns:: this instance of ScTimelinePlotter
+
+METHOD:: drawTracksAndLabels
+	method that draws the patterns and instrument labels
+	
+
+ARGUMENT:: internalplotlist
+pattern information received from the ScTimeline
+
+ARGUMENT:: totalwidth
+width in which the patterns must fit
+
+ARGUMENT:: totalheight
+height in which the patterns must fit
+
+ARGUMENT:: bin_to_idx
+mapping of a lane name to a lane index
+
+ARGUMENT:: time_span
+time over which the plotting must be spread
+
+ARGUMENT:: no_of_bins
+number of lanes to draw
+
+returns:: this instance of ScTimelinePlotter
+
+METHOD:: asView
+	returns a View with the plot that can be embedded in a View
+	
+
+ARGUMENT:: internalplotlist
+pattern information received from the ScTimeline
+
+returns:: a View
+
+EXAMPLES::
+
+code::
+(FIXME add some example code)
+::
